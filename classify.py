@@ -14,7 +14,7 @@ MODEL_NAMES = ['CNN', 'AlexNet', 'ResNet', 'MobileNet', 'VGG']
 
 class CNNClassification():
     def __init__(self, args):
-        self.model = Model.selectModel(args.model, args.n_class, args.pretrained)
+        self.model = Model.selectModel(args.model.lower(), args.n_class, args.pretrained)
         self.train_loader = Dataset.load_train(args.train_path, args.pretrained,
                                                args.batch_size)
         self.test_loader = Dataset.load_test(args.test_path, args.pretrained,
@@ -23,6 +23,7 @@ class CNNClassification():
         self.num_epochs = args.epochs
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.lr = args.lr
+        self.batch_size = args.batch_size
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = Adam(self.model.parameters(), lr=self.lr)
         self.train_count = len(glob.glob(args.train_path + '/**/*.png'))
@@ -54,9 +55,9 @@ class CNNClassification():
                 loss.backward()
                 self.optimizer.step()
 
-                if (i + 1) % 20 == 0:
+                if (i + 1) % 50 == 0:
                     print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.
-                          format(epoch + 1, self.num_epochs, i + 1, total_step, loss.item()))
+                          format(epoch + 1, self.num_epochs, i + 1, total_step/self.batch_size, loss.item()))
 
         self.check_path()
         # Save the model checkpoint
@@ -107,8 +108,8 @@ def get_args():
                         help='model architecture: ' +
                              ' | '.join(MODEL_NAMES) +
                              ' (default: CNN)')
-    parser.add_argument('--pretrained', default=False, dest='pretrained', type=bool,
-                        help="Model pretrained or not")
+    parser.add_argument('--pretrained', default=False, dest='pretrained', action='store_true',
+                        help="Model pretrained")
     parser.add_argument('--epochs', default=5, dest='epochs', type=int,
                         help="Number of epochs")
     parser.add_argument('--num-class', default=3, dest='n_class', type=int,
