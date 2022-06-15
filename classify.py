@@ -55,9 +55,9 @@ class CNNClassification():
                 loss.backward()
                 self.optimizer.step()
 
-                if (i + 1) % 50 == 0:
+                if (i + 1) % 100 == 0:
                     print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.
-                          format(epoch + 1, self.num_epochs, i + 1, total_step/self.batch_size, loss.item()))
+                          format(epoch + 1, self.num_epochs, i + self.batch_size, total_step, loss.item()))
 
         self.check_path()
         # Save the model checkpoint
