@@ -18,7 +18,7 @@ def createPatch(img_path, data_path, img_name, w, h, s):
 
 
 def organize(path):
-    os.system("cd {}".format(path))
+    os.chdir(path)
     os.system("mkdir test/ test/Brayan test/Cinta test/Pol train/ train/Brayan train/Cinta train/Pol")
     os.system("mv Brayan_1* Brayan_2* train/Brayan")
     os.system("mv Cinta_1* Cinta_2* train/Cinta")
