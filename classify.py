@@ -21,13 +21,14 @@ class CNNClassification():
                                              args.batch_size)
         self.result_path = args.results_path
         self.num_epochs = args.epochs
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device(args.device)
         self.lr = args.lr
         self.batch_size = args.batch_size
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = Adam(self.model.parameters(), lr=self.lr)
         self.train_count = len(glob.glob(args.train_path + '/**/*.png'))
         self.test_count = len(glob.glob(args.test_path + '/**/*.png'))
+        self.model.to(self.device)
 
     def check_path(self):
         if not os.path.isdir(self.result_path):
@@ -55,7 +56,7 @@ class CNNClassification():
                 loss.backward()
                 self.optimizer.step()
 
-                if (i + 1) % 10 == 0:
+                if (i + 1) % self.batch_size == 0:
                     print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.
                           format(epoch + 1, self.num_epochs, (i+1) * self.batch_size, total_step, loss.item()))
 
@@ -114,6 +115,8 @@ def get_args():
                         help="Number of epochs")
     parser.add_argument('--num-class', default=3, dest='n_class', type=int,
                         help="Number of classes")
+    parser.add_argument('--device', default='cpu', dest='device', type=str,
+                        help="device (cpu or gpu)")
     return parser
 
 
